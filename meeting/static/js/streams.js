@@ -17,10 +17,14 @@ let remoteUsers = {};
 // Function to join and display local stream
 let joinAndDisplayLocalStream = async () => {
     try {
+ 
+
         // joining the channel
 
         UID = await client.join(APP_ID, CHANNEL, TOKEN, null);
         console.log('UID:', UID);
+
+        client.on('user-published', handleUserJoined)
 
         localTracks = await AgoraRTC.createMicrophoneAndCameraTracks();
         console.log('Getting the audio and camera of the user');
@@ -44,5 +48,51 @@ let joinAndDisplayLocalStream = async () => {
     }
 };
 
+
+
+// ----------------------------------------------------------
+let handleUserJoined = async (user,mediaType) => {
+    remoteUsers[user.uid] = user;
+    await client.subscribe(user, mediaType);
+
+    if (mediaType === 'video') {
+        let player = document.getElementById(`user-container-${user.uid}`);
+        
+        // If the user had to refresh or lost connection, we need to refresh it
+        if (player != null) {
+            // player.parentNode.remove()
+            // test
+            player.remove();
+            
+        }
+        
+        player = `
+            <div class="video-container" id="user-container-${user.uid}">
+                <div class="username-wrapper"><span class="user-name"></span></div>
+                <div class="video-player" id="user-${user.uid}"></div>
+            </div>
+        `;
+        
+        document.getElementById('video-streams').insertAdjacentHTML('beforeend', player);
+        
+        // Ensure the video element is in the DOM
+        let videoElement = document.getElementById(`user-${user.uid}`);
+        if (videoElement) {
+            user.videoTrack.play(`user-${user.uid}`);
+        } else {
+            console.error('Video element not found:', `user-${user.uid}`);
+        }
+    }
+
+    if (mediaType === 'audio') {
+        user.audioTrack.play();
+    }
+
+}
+
+
 // Join and display local stream
 joinAndDisplayLocalStream();
+
+
+

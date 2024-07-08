@@ -142,7 +142,7 @@ def signin(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             messages.success(request, "You have successfully logged in.")
-            return redirect("room")
+            return redirect("lobby")
         else:
             if not User.objects.filter(username=username).exists():
                 messages.error(request, "Incorrect username")
@@ -168,3 +168,8 @@ def signout(request):
 
 def room(request):
     return render(request,'app/room.html')
+
+
+
+def lobby(request):
+    return render(request,'app/lobby.html')
