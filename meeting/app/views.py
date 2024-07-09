@@ -1,3 +1,6 @@
+import json
+import random
+import time
 from django.shortcuts import render
 from django.contrib import messages
 from django.forms import ValidationError
@@ -15,8 +18,34 @@ from django.core.mail import send_mail ,EmailMessage
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from .models import *
+from agora_token_builder import RtcTokenBuilder
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
+
+def getToken(request):
+    print('whyyyyyyyyyyyyyyyyyy')
+
+    appId = "ce47399fde4b46bfad2c007471491aa9"
+    appCertificate = "b3d8904d8f644f88af87328699ea7504"
+
+    channelName = request.GET.get('channel')
+
+    if not channelName:
+      return JsonResponse({'error': 'Channel name is required'}, status=400)
+
+    uid = random.randint(1, 230)
+
+    expirationTimeInSeconds = 3600 * 24
+    currentTimeStamp = int(time.time())
+    privilegeExpiredTs = currentTimeStamp + expirationTimeInSeconds
+    role = 1
+
+    token = RtcTokenBuilder.buildTokenWithUid(appId, appCertificate, channelName, uid, role, privilegeExpiredTs)
+    
+    print('sending token')
+    return JsonResponse({'token': token, 'uid': uid}, safe=False)
 
 def main_view(request):
     context={}
@@ -166,10 +195,52 @@ def signout(request):
     messages.success(request, "You have successfully logged out.")
     return redirect("signin")
 
+@login_required
 def room(request):
     return render(request,'app/room.html')
 
 
-
+@login_required
 def lobby(request):
-    return render(request,'app/lobby.html')
+    username=request.user.username
+    print(username)
+    return render(request,'app/lobby.html',{'username':username})
+
+
+@csrf_exempt
+def createMember(request):
+    data = json.loads(request.body)
+    username = User.objects.get(username=data['username'])
+    member, created = RoomMember.objects.get_or_create(
+        user=username,
+        uid=data['UID'],
+        room_name=data['room_name']
+    )
+
+    return JsonResponse({'username':data['username']}, safe=False)
+
+
+def getMember(request):
+    uid = request.GET.get('UID')
+    room_name = request.GET.get('room_name')
+    
+    member = RoomMember.objects.get(
+        uid=uid,
+        room_name=room_name,
+    )
+    username = member.user.username
+    return JsonResponse({'username':username}, safe=False)
+
+@csrf_exempt
+def deleteMember(request):
+    data = json.loads(request.body)
+    user=User.objects.get(username=data['username'])
+
+    member = RoomMember.objects.get(
+        uid = data['UID'],
+        user=user,
+        room_name=data['room_name']
+    )
+    member.delete()
+    return JsonResponse('Member deleted', safe=False)
+# NOT WORKING

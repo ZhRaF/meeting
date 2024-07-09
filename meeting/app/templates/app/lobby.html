@@ -18,17 +18,16 @@
         </div>
 
         <form id="form">
+                    {% csrf_token %}
+
             <div class="field-wrapper">
 
                 <div class="form-field">
                     <label>Room:</label>
                     <input name="room" placeholder="Enter a room name..."  style="text-transform:uppercase"/>
                 </div>
+                <H1>print {{username}}</H1>
 
-                <div class="form-field">
-                    <label>Name:</label>
-                    <input name="name" placeholder="Enter your name..."  style="text-transform:uppercase"/>
-                </div>
 
                 <div class="form-field">
                     <input type="submit" value="Join Stream" />
@@ -39,18 +38,72 @@
 </main>
 
 <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
 
-    let form = document.getElementById('form')
-    let handleSubmit = async (e) => {
-        e.preventDefault()
-        window.open('/room','_self')
-    }
-    form.addEventListener('submit', handleSubmit)
+        const csrftoken = getCookie('csrftoken');
+        const form = document.getElementById('form');
 
+        let handleSubmit = async (e) => {
+            e.preventDefault();
+            console.log("Form Submitted");
 
-   
+            let room = e.target.room.value.toUpperCase();
+            let username = "{{ username|escapejs }}";
+            console.log(username);
+
+            const formData = new FormData(e.target);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            try {
+                let response = await fetch(`/getToken/?channel=${room}`, {
+                    method: 'GET', // Change method to 'GET' as you are using query parameters
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                let data = await response.json();
+
+                let UID = data.uid;
+                let token = data.token;
+
+                sessionStorage.setItem('UID', UID);
+                sessionStorage.setItem('token', token);
+                sessionStorage.setItem('room', room);
+                sessionStorage.setItem('username', username);
+
+                window.open('/room', '_self');
+            } catch (error) {
+                console.error('Fetch error:', error);
+                alert('Failed to join room. Please try again.');
+            }
+        };
+
+        form.addEventListener('submit', handleSubmit);
+    });
 </script>
-
     
 </body>
 </html>
