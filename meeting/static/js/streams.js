@@ -1,4 +1,3 @@
-// // 007eJxTYFCdupP1+Wb29ZaGYh0fXkTVTf4cUDEleu7pZD/tppNZjT8UGJJTTcyNLS3TUlJNkkzMktISU4ySDQzMTcwNTSwNExMt92zqTmsIZGT4qqDBxMgAgSA+O0NuampJZl46AwMA63whmw==
 
 const APP_ID = 'ce47399fde4b46bfad2c007471491aa9'
 const CHANNEL = sessionStorage.getItem('room')
@@ -6,12 +5,11 @@ const TOKEN =  sessionStorage.getItem('token')
 let UID =  Number(sessionStorage.getItem('UID'))
 
 let USERNAME=sessionStorage.getItem('username')
-// '007eJxTYFiaUen+Xa70FINE0jMJ10orfYsCpuZ5q1OWPehbcFnTz0KBITnVxNzY0jItJdUkycQsKS0xxSjZwMDcxNzQxNIwMdHS6kB3WkMgI8OyZwcYGRkgEMRnYchNzMxjYAAA1AIejw=='
 
 
 console.log("streams.js is working");
 
-// Initializing Agora client
+// Initializing Agora clientt
 const client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
 
 let localTracks = [];
@@ -49,8 +47,7 @@ let joinAndDisplayLocalStream = async () => {
         await client.publish([localTracks[0], localTracks[1]]);
     } catch (error) {
         console.error('Error joining and displaying local stream:', error);
-        // Optionally redirect or handle the error
-        // window.open('/', '_self');
+        window.open('/', '_self');
     }
 };
 
@@ -83,7 +80,7 @@ let handleUserJoined = async (user,mediaType) => {
         
         document.getElementById('video-streams').insertAdjacentHTML('beforeend', player);
         
-        // Ensure the video element is in the DOM
+        // Ensuring the video element is in the DOM
         let videoElement = document.getElementById(`user-${user.uid}`);
         if (videoElement) {
             user.videoTrack.play(`user-${user.uid}`);
@@ -152,21 +149,37 @@ let createMember = async () => {
 }
 
 let getMember = async (user) => {
-    let response = await fetch(`/get_member/?UID=${user.uid}&room_name=${CHANNEL}`)
+    let response = await fetch(`getMember/?UID=${user.uid}&room_name=${CHANNEL}`)
     let member = await response.json()
     return member
 }
 
-let deleteMember = async () => {
-    let response = await fetch('/delete_member/', {
-        method:'POST',
-        headers: {
-            'Content-Type':'application/json'
-        },
-        body:JSON.stringify({'username':USERNAME, 'room_name':CHANNEL, 'UID':UID})
-    })
-    let member = await response.json()
+
+async function deleteMember() {
+    try {
+        let response = await fetch('deleteMember/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                'username': USERNAME,
+                'room_name': CHANNEL,
+                'UID': UID
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        let member = await response.json();
+        console.log(member.message);
+    } catch (error) {
+        console.error('Error:', error);
+    }
 }
+
 
 
 let camera= document.querySelector('#button-camera').addEventListener('click',toggleCamera)
@@ -174,7 +187,7 @@ let audio= document.querySelector('#button-audio').addEventListener('click',togg
 let leave= document.querySelector('#button-leave').addEventListener('click',leaveAndRemoveLocalStream)
 
 
-// Join and display local stream
+// Joining and displayingg local stream
 joinAndDisplayLocalStream();
 
 window.addEventListener('beforeunload',deleteMember)

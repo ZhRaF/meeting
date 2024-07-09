@@ -10,11 +10,20 @@
 </head>
 <body>
     <section id="form-container">
+        <div ><a href="/signout">signout</a></div>
+        {% if messages %}
+            <div class="alert alert-info" role="alert">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
 
         <div id="welcome-message">
-            <h1>Welcome to MyChat</h1>
-            <p>A group video calling platform made just for you!</p>
+            <h1>Welcome {{username}}</h1>
         </div>
 
         <form id="form">
@@ -23,14 +32,13 @@
             <div class="field-wrapper">
 
                 <div class="form-field">
-                    <label>Room:</label>
-                    <input name="room" placeholder="Enter a room name..."  style="text-transform:uppercase"/>
+                    <label>create or join a room:</label>
+                    <input name="room" placeholder="room name"  style="text-transform:uppercase"/>
                 </div>
-                <H1>print {{username}}</H1>
 
 
                 <div class="form-field">
-                    <input type="submit" value="Join Stream" />
+                    <input type="submit" value="Join room" />
                 </div>
             </div>
         </form>
@@ -73,7 +81,7 @@
 
             try {
                 let response = await fetch(`/getToken/?channel=${room}`, {
-                    method: 'GET', // Change method to 'GET' as you are using query parameters
+                    method: 'GET', 
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRFToken': csrftoken

@@ -1,19 +1,7 @@
 
-:root {
-    --shaddow:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -1px rgba(0,0,0,0.06);
-  }
-
-body{
-    background-color: rgba(232,233,239,1);
-    font-family: 'Roboto', sans-serif;
-}
-
-
-/* ------------------  Register Page ------------------ */
 
 #form-container{
     width: 400px;
-    box-shadow:var(--shaddow);
     background-color: #fff;
     padding: 30px;
     border-radius: 5px;
@@ -36,7 +24,6 @@ body{
 
 #welcome-message p{
     font-size: 16px;
-    color: rgb(97, 98, 105);
     font-weight: 300;
 }
 
@@ -51,18 +38,12 @@ body{
 
 .form-field input{
     width: 100%;
-    border:2px solid rgba(198,202,219,1);
     border-radius: 5px;
     padding: 10px;
     font-size: 16px;
     box-sizing: border-box;
 }
 
-.form-field input[type='submit']{
-    background-color: rgb(75, 93, 172);
-    border:none;
-    color: #fff;
-}
 
 
 @media screen and (max-width:450px) {
@@ -96,10 +77,8 @@ body{
     flex-grow: 1;
     max-height: 100%;
     min-height: 350px;
-    border: 1px solid rgb(75, 93, 172);
     border-radius: 5px;
     margin: 2px;
-    background-color: rgba(198,202,219,1);
     position: relative;
 }
 
