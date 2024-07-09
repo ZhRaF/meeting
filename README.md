@@ -3,7 +3,7 @@
 - Team Name: **les vagabonds**
 - Challenge Name : **Challenge 7 (nightmare king grimm)**
 
-- What is the percentage of the challenge you have completed? **100%**
+- What is the percentage of the challenge you have completed? **50%**
 
 - What are the requirements you have implemented?
 
